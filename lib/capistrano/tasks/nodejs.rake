@@ -2,6 +2,7 @@ namespace :config do
   task :set_paths do
     SSHKit.config.command_map[:bower] = File.join(release_path, 'node_modules', 'bower', 'bin', 'bower')
     SSHKit.config.command_map[:grunt] = File.join(release_path, 'node_modules', 'grunt-cli', 'bin', 'grunt')
+    SSHKit.config.command_map[:forever] = File.join(release_path, 'node_modules', 'forever', 'bin', 'forever')
   end
 end
 
@@ -39,6 +40,30 @@ namespace :grunt do
     on roles(:app) do
       within release_path do
         execute :grunt, "build"
+      end
+    end
+  end
+end
+
+namespace :deploy do
+  task :start do
+    on roles(:app) do
+      within release_path do
+        execute :forever, "start #{fetch(:forever_script, "./config/forever.json")}"
+      end
+    end
+  end
+  task :stop do
+    on roles(:app) do
+      within release_path do
+        execute :forever, "stop #{fetch(:forever_script, "./config/forever.json")}"
+      end
+    end
+  end
+  task :restart do
+    on roles(:app), in: :sequence, wait: 5 do
+      within release_path do
+        execute :forever, "restart #{fetch(:forever_script, "./config/forever.json")}"
       end
     end
   end
