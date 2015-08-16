@@ -50,7 +50,9 @@ namespace :deploy do
     invoke 'config:set_paths'
     on roles(:app) do
       within release_path do
-        execute :forever, "start #{fetch(:forever_options, ["-l logs/forever.log", "-o logs/stdout.log", "-e logs/stderr.log", "--spinSleepTime 10000", "--minUptime 1000"]).join(" ")} #{fetch(:forever_script, "./config/forever.json")}"
+        with PORT: host.app_port || 8080 do
+          execute :forever, "start #{fetch(:forever_options, ["-l logs/forever.log", "-o logs/stdout.log", "-e logs/stderr.log", "--spinSleepTime 10000", "--minUptime 1000"]).join(" ")} #{fetch(:forever_script, "./config/forever.json")}"
+        end
       end
     end
   end
@@ -58,15 +60,19 @@ namespace :deploy do
     invoke 'config:set_paths'
     on roles(:app) do
       within release_path do
-        execute :forever, "stop #{fetch(:forever_options, ["-l logs/forever.log", "-o logs/stdout.log", "-e logs/stderr.log", "--spinSleepTime 10000", "--minUptime 1000"]).join(" ")} #{fetch(:forever_script, "./config/forever.json")}"
+        with PORT: host.app_port || 8080 do
+          execute :forever, "stop #{fetch(:forever_options, ["-l logs/forever.log", "-o logs/stdout.log", "-e logs/stderr.log", "--spinSleepTime 10000", "--minUptime 1000"]).join(" ")} #{fetch(:forever_script, "./config/forever.json")}"
+        end
       end
     end
   end
   task :restart do
     invoke 'config:set_paths'
-    on roles(:app), in: :sequence, wait: 5 do
+    on roles(:app), in: :sequence, wait: 5 do |host|
       within release_path do
-        execute :forever, "restart #{fetch(:forever_options, ["-l logs/forever.log", "-o logs/stdout.log", "-e logs/stderr.log", "--spinSleepTime 10000", "--minUptime 1000"]).join(" ")} #{fetch(:forever_script, "./config/forever.json")}"
+        with PORT: host.app_port || 8080 do
+          execute :forever, "restart #{fetch(:forever_options, ["-l logs/forever.log", "-o logs/stdout.log", "-e logs/stderr.log", "--spinSleepTime 10000", "--minUptime 1000"]).join(" ")} #{fetch(:forever_script, "./config/forever.json")}"
+        end
       end
     end
   end
