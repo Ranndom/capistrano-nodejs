@@ -47,6 +47,7 @@ end
 
 namespace :deploy do
   task :start do
+    invoke 'config:set_paths'
     on roles(:app) do
       within release_path do
         execute :forever, "start #{fetch(:forever_script, "./config/forever.json")}"
@@ -54,6 +55,7 @@ namespace :deploy do
     end
   end
   task :stop do
+    invoke 'config:set_paths'
     on roles(:app) do
       within release_path do
         execute :forever, "stop #{fetch(:forever_script, "./config/forever.json")}"
@@ -61,6 +63,7 @@ namespace :deploy do
     end
   end
   task :restart do
+    invoke 'config:set_paths'
     on roles(:app), in: :sequence, wait: 5 do
       within release_path do
         execute :forever, "restart #{fetch(:forever_script, "./config/forever.json")}"
