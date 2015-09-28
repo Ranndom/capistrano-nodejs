@@ -27,8 +27,22 @@ require 'capistrano/nodejs'
 
 ```ruby
 # config/deploy.rb
-set :linked_dirs, %w{node_module app/bower_components}
-after "deploy:updated", "nodejs:build"
+
+# Only required if you don't want to download dependencies on every deploy, rather than updating the previous deploy.
+set :linked_dirs, %w(node_modules app/bower_components)
+
+set :npm_target, -> { release_path.join('npm_dir') } # Defaults to not set.
+set :bower_target, -> { release_path.join('bower_dir') } # Defaults to not set.
+set :grunt_target, -> { release_path.join('grunt_dir') } # Defaults to not set.
+
+set :npm_role, :all # Defaults to :all
+set :bower_role, :all # Defaults to :all
+set :grunt_role, :all # Defaults to :all
+
+set :npm_args, %w(--production --silent) # Defaults to '--production' & '--silent'.
+set :bower_args, %w(--silent) # Defaults to '--silent'.
+set :grunt_args, %w() # Defaults to none.
+```
 
 ## Contributing
 

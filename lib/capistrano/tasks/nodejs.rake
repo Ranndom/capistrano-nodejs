@@ -14,11 +14,13 @@ namespace :nodejs do
   end
 end
 
+before 'deploy:updated', 'nodejs:build'
+
 namespace :npm do
   task :install do
-    on roles(:app) do
-      within release_path do
-        execute :npm, "install"
+    on roles(:npm_role) do
+      within fetch(:npm_target, release_path) do
+        execute :npm, "install", fetch(:npm_args)
       end
     end
   end
@@ -26,9 +28,9 @@ end
 
 namespace :bower do
   task :install do
-    on roles(:app) do
-      within release_path do
-        execute :bower, "install"
+    on roles(:bower_role) do
+      within fetch(:bower_target, release_path) do
+        execute :bower, "install", fetch(:bower_args)
       end
     end
   end
@@ -36,11 +38,23 @@ end
 
 namespace :grunt do
   task :build do
-    on roles(:app) do
-      within release_path do
-        execute :grunt, "build"
+    on roles(:grunt_role) do
+      within fetch(:grunt_target, release_path) do
+        execute :grunt, "build", fetch(:grunt_args)
       end
     end
   end
+end
+
+namespace :load do
+    task :defaults do
+        set :npm_args, %w(--production --silent)
+        set :bower_args, %w(--silent)
+        set :grunt_args, %w()
+
+        set :npm_role, :all
+        set :bower_role, :all
+        set :grunt_role, :all
+    end
 end
 
